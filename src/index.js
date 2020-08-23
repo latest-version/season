@@ -1,17 +1,68 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// const App = () => {
+//     window.navigator.geolocation.getCurrentPosition( 
+//         position => console.log(position),
+//         err => console.log(err)
+//     );
+//     return (
+//         <div>Hi There</div>
+//     );
+// }
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+class App extends React.Component {
+    constructor(props){
+        super(props);
+        
+        // initailize state object
+        this.state = { lat: null, errorMessage: ''};
+        
+        console.log('construtor');
+
+    }
+
+    renderContent() {
+        if( this.state.errorMessage && !this.state.lat){
+            return (
+                <div>
+                    <h2>Error: {this.state.errorMessage}</h2>
+                </div>
+            );
+        }
+        
+        if( !this.state.errorMessage && this.state.lat ){
+            return <SeasonDisplay lat={this.state.lat}/>;
+        }
+
+        return <Spinner message="Please accept location request"/>;
+    }
+    render(){
+        
+        return (
+        <div className="border red">
+            {this.renderContent()}
+        </div>
+        );
+        
+    }
+
+    componentDidMount(){
+        window.navigator.geolocation.getCurrentPosition( 
+            position => this.setState({lat: position.coords.latitude}),
+            err => this.setState({ errorMessage: err.message})
+        );
+    }
+
+    componentDidUpdate(){
+        console.log('component did update');
+    }
+
+    componentWillUnmount(){
+        console.log('component will unmount');
+    }
+}
+
+ReactDOM.render(<App/>, document.querySelector('#root'));
